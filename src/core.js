@@ -407,7 +407,7 @@
            return this._eventListeners;
         },
         on(name, handler) {
-            var l = this._eventListeners();
+            var l = this._getListers();
             var names = name.split(' ');
 
             core.each(names, (nm) => {
@@ -420,7 +420,7 @@
         },
         trigger(name) {
             var data = [].slice.call(arguments, 1);
-            var l = this._eventListeners();
+            var l = this._getListers();
 
             if (!l[name]) { return; }
             core.each(l[name], (handler) => {
