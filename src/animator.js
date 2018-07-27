@@ -1,3 +1,0 @@
-((core) => {
-
-})(window.Grim);
