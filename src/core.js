@@ -134,6 +134,18 @@
         return obj;
     };
 
+    var eachReverse = (arr, iterater, ctx) => {
+        if (!isArray(arr)) {
+            return;
+        }
+
+        for (var i = arr.length - 1; i >= 0; i++) {
+            if (iterater.call(arr, arr[i], i, arr) === false) {
+                break;
+            }
+        }
+    };
+
     var clone = (obj) => {
         if (null === obj || "object" != typeof obj) return obj;
 
@@ -372,6 +384,7 @@
         },
 
         each,
+        eachReverse,
         extend,
         clone,
         typeCheck,
@@ -381,6 +394,17 @@
         isJSON,
         isNumber,
         BaseClass,
+        toArray(value) {
+            return [].slice.call(value);
+        },
+        capitalize(str) {
+           return str.replace(/-([a-z])/g, (all, find) => {
+               return find.toUpperCase();
+            });
+        },
+        firstUpperCase(str) {
+            return str.substr(0, 1).toUpperCase() + str.substr(1);
+        },
         error() {
             console.error.apply(console, [].slice.call(arguments));
         },
@@ -406,17 +430,75 @@
            }
            return this._eventListeners;
         },
-        on(name, handler) {
-            var l = this._getListers();
-            var names = name.split(' ');
+        on(eventName, handler) {
+            if (arguments.length) {
+                return this.delegate.apply(this, arguments);
+            }
 
-            core.each(names, (nm) => {
-                if (!l[nm]) {
-                    l[nm] = [];
+            var l = this._getListers();
+            var names = eventName.split(' ');
+
+            core.each(names, (event) => {
+                var parts, baseEvent, name;
+
+                parts = event.split('.');
+                baseEvent = parts[0];
+                name = parts[1] || '';
+
+                if (!l[baseEvent]) {
+                    l[baseEvent] = [];
                 }
 
-                l[nm].push(handler);
+                l[baseEvent].push({
+                    name,
+                    handler
+                });
             });
+        },
+        off(eventName, handler) {
+            var events = (eventName || '').split(' '),
+                len = events.length,
+                n, t, event, parts, baseEvent, name;
+
+            if (!eventName) {
+                core.each(thie._getListers(), (evt) => {
+                    this._off(evt);
+                });
+            }
+
+            core.each(events, (event) => {
+                parts = event.split('.');
+                baseEvent = parts[0];
+                name = parts[1] || '';
+
+                if (baseEvent) {
+                    if (this._getListers()[baseEvent]) {
+                        this._off(baseEvent, name, handler);
+                    }
+                } else {
+                    core.each(this._getListers(), (evt) => {
+                        this._off(evt, name, handler);
+                    });
+                }
+            });
+
+            return this;
+        },
+        dispatchEvent(evt) {
+            this.trigger(evt.type, {
+                target: this,
+                type: evt.type,
+                evt
+            });
+            return this;
+        },
+        addEventListener(type, handler) {
+            return this.on(type, (evt) => {
+                handler.call(this, evt.evt);
+            });
+        },
+        removeEventListener(type) {
+            return this.off(type);
         },
         trigger(name) {
             var data = [].slice.call(arguments, 1);
@@ -426,6 +508,35 @@
             core.each(l[name], (handler) => {
                 handler.apply(this, data);
             });
+        },
+        _delegate(event, selector, handler) {
+            var stopNode = this;
+
+            return this.on(event, (evt) => {
+                var targets = evt.target.findAncestors(selector, true, stopNode);
+
+                core.each(targets, (target) => {
+                    evt = core.clone(evt);
+                    evt.currentTarget = target;
+                    handler.call(target, evt);
+                });
+            });
+        },
+        _off(type, name, callback) {
+            var l = this._getListers();
+
+            core.eachReverse(l[type], (evt, i) => {
+                var evtName = evt.name;
+                var handler = evt.handler;
+
+                if ((!name || evtName === name) && (!callback || callback === handler)) {
+                    l.splice(i, 1);
+                    if (l.length === 0) {
+                        delete l[type];
+                        return false;
+                    }
+                }
+            })
         }
     };
 
