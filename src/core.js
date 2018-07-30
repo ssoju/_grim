@@ -286,7 +286,7 @@
                                 instance = new Klass;
                                 break;
                             case len === 1:
-                                instance = new Klass(args[0]);
+                                instance = new Klass(arg[0]);
                                 break;
                             case len === 2:
                                 instance = new Klass(arg[0], arg[1]);
@@ -394,6 +394,7 @@
         isJSON,
         isNumber,
         BaseClass,
+        createClass: BaseClass.extend,
         toArray(value) {
             return [].slice.call(value);
         },
@@ -508,6 +509,32 @@
             core.each(l[name], (handler) => {
                 handler.apply(this, data);
             });
+        },
+        fire(eventType, evt, bubble) {
+            evt = evt || {};
+            evt.target = evt.target || this;
+            // bubble
+            if (bubble) {
+                this._fireAndBubble(eventType, evt);
+            } else {
+                // no bubble
+                this._fire(eventType, evt);
+            }
+            return this;
+        },
+        _fire: function(eventType, evt) {
+            var events = this.eventListeners[eventType],
+                i;
+
+            evt = evt || {};
+            evt.currentTarget = this;
+            evt.type = eventType;
+
+            if (events) {
+                for (i = 0; i < events.length; i++) {
+                    events[i].handler.call(this, evt);
+                }
+            }
         },
         _delegate(event, selector, handler) {
             var stopNode = this;
