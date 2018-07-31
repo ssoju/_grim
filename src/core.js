@@ -207,7 +207,7 @@
         var classSyntax = {};
         function classExtend(name, attr, parentClass) {
             var supr = parentClass || this,
-                Klass, statics, mixins, singleton, instance, hooks, name, strFunc;
+                Klass, statics, mixins, fields, singleton, instance, hooks, name, strFunc;
 
             if (!isString(name)) {
                 attr = name;
@@ -222,6 +222,7 @@
             statics = attr.$statics || false;
             mixins = attr.$mixins || false;
             hooks = attr.$hooks || false;
+            fields = attr.$fields || false;
             name = name || attr.$name || 'BaseClass';
 
             !attr.initialize && (attr.initialize = supr.prototype.initialize || function () {});
@@ -346,6 +347,31 @@
             };
             Klass.statics.call(Klass, supr);
             statics && Klass.statics.call(Klass, statics);
+
+            if (fields) {
+                core.each(fields, (value, field) => {
+                    var m = core.firstUpperCase(field);
+
+                    Klass.prototype['get' + m] = function () {
+                        var val = this._attrs[attr];
+                        return val === undefined ? value.default : val;
+                    };
+
+                    Klass.prototype['set' + m] = function (val) {
+                        if (value.validator) {
+                            val = value.validator.call(this, val);
+                        }
+
+                        this.attr(attr, val);
+
+                        if (value.after) {
+                            value.after.call(this);
+                        }
+
+                        return this;
+                    }
+                })
+            }
 
             return Klass;
         }
