@@ -531,19 +531,6 @@
     core.util.addGetterSetter(core.Shape, 'fillRadialGradientEndPointX', 0);
     core.util.addGetterSetter(core.Shape, 'fillRadialGradientEndPointY', 0);
     core.util.addGetterSetter(core.Shape, 'fillPatternRotation', 0);
-    core.util.backCompat(core.Shape, {
-        dashArray: 'dash',
-        getDashArray: 'getDash',
-        setDashArray: 'getDash',
-
-        drawFunc: 'sceneFunc',
-        getDrawFunc: 'getSceneFunc',
-        setDrawFunc: 'setSceneFunc',
-
-        drawHitFunc: 'hitFunc',
-        getDrawHitFunc: 'getHitFunc',
-        setDrawHitFunc: 'setHitFunc'
-    });
     core.Collection.mapMethods(core.Shape);
     
     

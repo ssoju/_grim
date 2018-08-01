@@ -9,6 +9,10 @@
             return this.canvas;
         },
 
+        getRawContext() {
+            return this.context;
+        },
+
         reset() {
             var pixelRatio = this.getCanvas().getPixelRatio();
 

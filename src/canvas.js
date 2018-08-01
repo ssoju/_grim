@@ -19,6 +19,10 @@
             });
         },
 
+        getRawCanvas() {
+            return this.canvas;
+        },
+
         getContext() {
             return this.context;
         },

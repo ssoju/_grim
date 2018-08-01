@@ -369,6 +369,19 @@
                         }
 
                         return this;
+                    };
+
+                    if (value.overload) {
+                        Klass.prototype[field] = function () {
+                            // setting
+                            if (arguments.length) {
+                                this['set' + m](arguments[0]);
+                                return this;
+                            }
+
+                            // getting
+                            return this['get' + m]();
+                        };
                     }
                 })
             }
