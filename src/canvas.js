@@ -19,7 +19,7 @@
             });
         },
 
-        getRawCanvas() {
+        getElement() {
             return this.canvas;
         },
 

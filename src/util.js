@@ -44,6 +44,10 @@
             };
         },
 
+        getAngle(angle) {
+            return angle * PI_180
+        },
+
         getRandomColor() {
             var randColor = ((Math.random() * 0xffffff) << 0).toString(16);
 

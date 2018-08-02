@@ -125,7 +125,7 @@
                 var height = layer.getCanvas().getHeight();
                 var ratio = layer.getCanvas().getPixelRatio();
                 _context.drawImage(
-                    layer.getCanvas().getRawCanvas(),
+                    layer.getCanvas().getElement(),
                     0,
                     0,
                     width / ratio,
@@ -207,7 +207,7 @@
             layer.draw();
 
             if (core.detect.isBrowser) {
-                this.content.appendChild(layer.canvas.getRawCanvas());
+                this.content.appendChild(layer.canvas.getElement());
             }
 
             return this;

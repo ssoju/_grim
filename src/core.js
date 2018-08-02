@@ -418,9 +418,53 @@
             isDragging: false
         },
 
-        getAngle(angle) {
-            return angle * PI_180
-        },
+        detect: (function() {
+            var _detectIE = function(ua) {
+                var msie = ua.indexOf('msie ');
+                if (msie > 0) {
+                    // IE 10 or older => return version number
+                    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+                }
+
+                var trident = ua.indexOf('trident/');
+                if (trident > 0) {
+                    // IE 11 => return version number
+                    var rv = ua.indexOf('rv:');
+                    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+                }
+
+                var edge = ua.indexOf('edge/');
+                if (edge > 0) {
+                    // Edge (IE 12+) => return version number
+                    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+                }
+
+                // other browser
+                return false;
+            };
+
+            var ua = naviagtor.userAgent.toLowerCase(),
+                match =
+                    /(chrome)[ /]([\w.]+)/.exec(ua) ||
+                    /(webkit)[ /]([\w.]+)/.exec(ua) ||
+                    /(opera)(?:.*version|)[ /]([\w.]+)/.exec(ua) ||
+                    /(msie) ([\w.]+)/.exec(ua) ||
+                    (ua.indexOf('compatible') < 0 &&
+                        /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)) ||
+                    [],
+                mobile = !!userAgent.match(
+                    /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i
+                ),
+                ieMobile = !!userAgent.match(/IEMobile/i);
+
+            return {
+                browser: match[1] || '',
+                version: match[2] || '0',
+                isIE: _detectIE(ua),
+                isMobile: mobile,
+                ieMobile: ieMobile 
+            };
+        })(),
 
         each,
         eachReverse,
