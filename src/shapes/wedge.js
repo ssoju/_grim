@@ -41,5 +41,10 @@
                 this.setRadius(height / 2);
             }
         }
-    })
+    });
+
+    core.util.addGetterSetter(core.Wedge, 'radius', 0);
+    core.util.addGetterSetter(core.Wedge, 'angle', 0);
+    core.util.addGetterSetter(core.Wedge, 'clockwise', false);
+
 })(window.Grim);
